@@ -835,10 +835,17 @@ void Client::save(std::string address)
     std::string host = cmd.parse_host(address);
     uint64_t port = cmd.parse_port(address);
 
+    std::string dbfilename = config_get("dbfilename", address)["dbfilename"];
+    dbfilename.erase(dbfilename.length() - 4); // remove the '.rdb' file extension
+
+    config_set("dbfilename", dbfilename + "_" + std::to_string(port) + ".rdb", address);
+
     cmd.set_exec_address_port(host, port);
     cmd.add_field("SAVE");
 
     CommandReply reply = _run(cmd);
+    config_set("dbfilename", dbfilename + ".rdb", address);
+
     if (reply.has_error() > 0)
         throw std::runtime_error("SAVE command failed");
 }

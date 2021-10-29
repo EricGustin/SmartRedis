@@ -596,6 +596,7 @@ SCENARIO("Testing CONFIG GET and CONFIG SET on Client Object", "[Client]")
                 std::string db_address = parse_SSDB(std::getenv("SSDB"));
                 std::string config_param = "dbfilename";
                 std::string new_filename = "new_file.rdb";
+                std::string orig_dbfilename = client.config_get(config_param, db_address)["dbfilename"];
 
                 CHECK_NOTHROW(client.config_set(config_param, new_filename, db_address));
                 std::unordered_map<std::string,std::string> reply =
@@ -604,6 +605,9 @@ SCENARIO("Testing CONFIG GET and CONFIG SET on Client Object", "[Client]")
                 CHECK(reply.size() == 1);
                 REQUIRE(reply.count(config_param) > 0);
                 CHECK(reply[config_param] == new_filename);
+
+                // change back to original dbfilename
+                client.config_set(config_param, orig_dbfilename, db_address);
             }
         }
     }
