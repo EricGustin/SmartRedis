@@ -429,7 +429,62 @@ void Client::copy_tensor(const std::string& src_key,
     if (reply.has_error())
         throw std::runtime_error("copy_tensor failed");
 }
+// Set a model from a string buffer in the database for future execution
+void Client::set_model2(const std::string& key,
+                       const std::string_view& model,
+                       const std::string& backend,
+                       const std::string& device,
+                       int batch_size,
+                       int min_batch_size,
+                       const std::string& tag,
+                       const std::vector<std::string>& inputs,
+                       const std::vector<std::string>& outputs)
+{
+    if (key.size() == 0) {
+        throw std::runtime_error("key is a required parameter of set_model.");
+    }
 
+    if (backend.size() == 0) {
+        throw std::runtime_error("backend is a required  "\
+                                 "parameter of set_model.");
+    }
+
+    if (backend.compare("TF") != 0) {
+        if (inputs.size() > 0) {
+            throw std::runtime_error("INPUTS in the model set command "\
+                                     "is only valid for TF models");
+        }
+        if (outputs.size() > 0) {
+            throw std::runtime_error("OUTPUTS in the model set command "\
+                                     "is only valid for TF models");
+        }
+    }
+
+    const char* backends[] = { "TF", "TFLITE", "TORCH", "ONNX" };
+    bool found = false;
+    for (size_t i = 0; i < sizeof(backends)/sizeof(backends[0]); i++)
+        found = found || (backend.compare(backends[i]) != 0);
+    if (!found) {
+        throw std::runtime_error(std::string(backend) +
+                                    " is not a valid backend.");
+    }
+
+    if (device.size() == 0) {
+        throw std::runtime_error("device is a required "
+                                 "parameter of set_model.");
+    }
+
+    if (device.compare("CPU") != 0 &&
+        std::string(device).find("GPU") == std::string::npos) {
+        throw std::runtime_error(std::string(backend) +
+                                 " is not a valid backend.");
+    }
+
+    std::string p_key = _build_model_key(key, false);
+    _redis_server->set_model(p_key, model, backend, device,
+                             batch_size, min_batch_size,
+                             tag, inputs, outputs);
+}
 // Set a model from file in the database for future execution
 void Client::set_model_from_file(const std::string& key,
                                  const std::string& model_file,

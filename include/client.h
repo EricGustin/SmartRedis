@@ -67,7 +67,17 @@ class Client
 {
 
     public:
-
+        void set_model2(const std::string& key,
+               const std::string_view& model,
+               const std::string& backend,
+               const std::string& device,
+               int batch_size = 0,
+               int min_batch_size = 0,
+               const std::string& tag = "",
+               const std::vector<std::string>& inputs
+                   = std::vector<std::string>(),
+               const std::vector<std::string>& outputs
+                   = std::vector<std::string>());
         /*!
         *   \brief Client constructor
         *   \param cluster Flag to indicate if a database cluster
