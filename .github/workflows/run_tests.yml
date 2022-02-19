@@ -90,7 +90,7 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         run: |
           sudo apt-get install cmake
-          sudo apt-get install -y mpi
+          sudo apt install mpich
 
 
       - name: Build SmartRedis python and install
