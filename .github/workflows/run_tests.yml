@@ -86,9 +86,12 @@ jobs:
           echo "CXX=icpc" >> $GITHUB_ENV &&
           echo "FC=ifort" >> $GITHUB_ENV
 
-      - name: Install Cmake Linux
+      - name: Install Cmake Linux and mpi
         if: contains(matrix.os, 'ubuntu')
-        run: sudo apt-get install cmake
+        run: |
+          sudo apt-get install cmake
+          sudo apt-get install -y mpi
+
 
       - name: Build SmartRedis python and install
         run: python -m pip install -e .[dev]
